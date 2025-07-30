@@ -1,0 +1,2 @@
+streamlit==1.33.0
+essentia==2.1b6.dev414
