@@ -34,8 +34,9 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Build Essentia from source
 WORKDIR /opt
-RUN git clone --depth=1 https://github.com/MTG/essentia.git && \
-    cd essentia && \
+RUN git clone https://github.com/MTG/essentia.git && \
+    ls -la /opt/essentia && \
+    cd /opt/essentia && \
     mkdir build && cd build && \
     cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 && \
     make -j4 && \
