@@ -3,7 +3,10 @@ FROM ubuntu:20.04
 # Avoid interactive prompts during package installs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Python and system dependencies
+# FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
     apt-get install -y \
     python3 \
@@ -21,9 +24,34 @@ RUN apt-get update && \
     libfftw3-dev \
     libyaml-dev \
     libeigen3-dev \
+    libboost-all-dev \
+    swig \
     pkg-config \
     wget && \
     apt-get clean
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Build Essentia from source
+WORKDIR /opt
+RUN git clone --depth=1 https://github.com/MTG/essentia.git && \
+    cd essentia && \
+    mkdir build && cd build && \
+    cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 && \
+    make -j4 && \
+    make install && \
+    ldconfig
+
+# Set up app
+WORKDIR /app
+COPY ./app /app
+
+RUN pip3 install --upgrade pip && \
+    pip3 install streamlit
+
+EXPOSE 10000
+
+CMD ["streamlit", "run", "main.py", "--server.port=10000", "--server.address=0.0.0.0"]
 
 # Set Python alias for compatibility
 RUN ln -s /usr/bin/python3 /usr/bin/python
