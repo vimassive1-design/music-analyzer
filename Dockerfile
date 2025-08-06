@@ -1,17 +1,44 @@
 FROM python:3.9-slim
 
+# Install system-level dependencies
 RUN apt-get update && \
-    apt-get install -y build-essential ffmpeg libfftw3-dev libsamplerate0-dev \
-    libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libessentia-dev && \
+    apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    ffmpeg \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswresample-dev \
+    libsamplerate0-dev \
+    libfftw3-dev \
+    libyaml-dev \
+    libeigen3-dev \
+    pkg-config \
+    python3-dev \
+    wget && \
     apt-get clean
 
-WORKDIR /app
+# Build Essentia from source
+WORKDIR /essentia
+RUN git clone --depth=1 https://github.com/MTG/essentia.git . && \
+    mkdir -p build && cd build && \
+    cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/local/bin/python3 && \
+    make -j4 && \
+    make install && \
+    ldconfig
 
+# Copy your app
+WORKDIR /app
 COPY ./app /app
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Install Python packages
+RUN pip install --upgrade pip && \
+    pip install streamlit
 
-EXPOSE 8501
+# Expose Streamlit default port
+EXPOSE 10000
 
-CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Start Streamlit app
+CMD ["streamlit", "run", "main.py", "--server.port=10000", "--server.address=0.0.0.0"]
