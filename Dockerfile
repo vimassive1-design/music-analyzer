@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-# Avoid interactive prompts during install
+# Avoid interactive prompts during package installs
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install Python and system dependencies
@@ -25,19 +25,20 @@ RUN apt-get update && \
     wget && \
     apt-get clean
 
-# Set Python alias
+# Set Python alias for compatibility
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Build Essentia from source
-WORKDIR /essentia
-RUN git clone --depth=1 https://github.com/MTG/essentia.git . && \
+WORKDIR /opt
+RUN git clone --depth=1 https://github.com/MTG/essentia.git && \
+    cd essentia && \
     mkdir build && cd build && \
     cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 && \
     make -j4 && \
     make install && \
     ldconfig
 
-# Set app directory
+# Copy your app code into the container
 WORKDIR /app
 COPY ./app /app
 
@@ -45,8 +46,8 @@ COPY ./app /app
 RUN pip3 install --upgrade pip && \
     pip3 install streamlit
 
-# Expose Streamlit port
+# Expose the port Streamlit will use
 EXPOSE 10000
 
-# Start the app
+# Start the Streamlit app
 CMD ["streamlit", "run", "main.py", "--server.port=10000", "--server.address=0.0.0.0"]
