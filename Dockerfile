@@ -34,7 +34,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Build Essentia from source
 WORKDIR /opt
-RUN git clone https://github.com/MTG/essentia.git && \
+WORKDIR /opt
+RUN git clone https://github.com/MTG/essentia.git /opt/essentia && \
     ls -la /opt/essentia && \
     cd /opt/essentia && \
     mkdir build && cd build && \
