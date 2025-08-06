@@ -33,16 +33,22 @@ RUN apt-get update && \
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Build Essentia from source
+
+# Clone Essentia into a clean directory
 WORKDIR /opt
-WORKDIR /opt
-RUN git clone https://github.com/MTG/essentia.git /opt/essentia && \
-    ls -la /opt/essentia && \
-    cd /opt/essentia && \
-    mkdir build && cd build && \
-    cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 && \
-    make -j4 && \
-    make install && \
-    ldconfig
+RUN git clone https://github.com/MTG/essentia.git /opt/essentia
+
+# Check the files exist
+RUN ls -la /opt/essentia
+
+# Build Essentia
+WORKDIR /opt/essentia
+RUN mkdir build
+WORKDIR /opt/essentia/build
+RUN cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/bin/python3
+RUN make -j4
+RUN make install
+RUN ldconfig
 
 # Set up app
 WORKDIR /app
