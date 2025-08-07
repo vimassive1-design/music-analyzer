@@ -36,15 +36,17 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Build Essentia from source
 
-# Clone Essentia into /opt/essentia
+# STEP 1: Clone Essentia clearly
+WORKDIR /opt
 RUN git clone https://github.com/MTG/essentia.git /opt/essentia
 
-# Confirm it cloned properly
-RUN ls -la /opt/essentia
-RUN ls -la /opt/essentia/src
-RUN ls -la /opt/essentia/python
+# STEP 2: Debug output
+RUN echo "📁 Checking Essentia folder:" && \
+    ls -la /opt/essentia && \
+    echo "📄 Checking for CMakeLists.txt:" && \
+    cat /opt/essentia/CMakeLists.txt || echo "❌ CMakeLists.txt MISSING"
 
-# Build Essentia
+# STEP 3: Build if valid
 WORKDIR /opt/essentia
 RUN mkdir build
 WORKDIR /opt/essentia/build
@@ -52,7 +54,6 @@ RUN cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/bin/python3
 RUN make -j4
 RUN make install
 RUN ldconfig
-
 
 # Set up app
 WORKDIR /app
