@@ -48,10 +48,10 @@ RUN echo "📁 Checking /opt/essentia contents:" && \
     echo "📄 CMakeLists.txt content:" && \
     cat /opt/essentia/CMakeLists.txt || echo "❌ MISSING"
 
-# Build Essentia
-WORKDIR /opt/essentia
+# Build Essentia from local submodule
+WORKDIR /app/essentia
 RUN mkdir build
-WORKDIR /opt/essentia/build
+WORKDIR /app/essentia/build
 RUN cmake .. -DBUILD_PYTHON_BINDINGS=ON -DPYTHON_EXECUTABLE=/usr/bin/python3
 RUN make -j4
 RUN make install
