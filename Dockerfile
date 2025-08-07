@@ -34,19 +34,21 @@ RUN apt-get update && \
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-# Build Essentia from source
-
-# STEP 1: Clone Essentia clearly
+# Build Essentia from source (resilient clone)
 WORKDIR /opt
-RUN git clone https://github.com/MTG/essentia.git /opt/essentia
 
-# STEP 2: Debug output
-RUN echo "📁 Checking Essentia folder:" && \
+# Clone into a temp folder to avoid incomplete download
+RUN git config --global advice.detachedHead false && \
+    git clone https://github.com/MTG/essentia.git /opt/essentia-clone && \
+    mv /opt/essentia-clone /opt/essentia
+
+# Check contents to confirm CMakeLists.txt exists
+RUN echo "📁 Checking /opt/essentia contents:" && \
     ls -la /opt/essentia && \
-    echo "📄 Checking for CMakeLists.txt:" && \
-    cat /opt/essentia/CMakeLists.txt || echo "❌ CMakeLists.txt MISSING"
+    echo "📄 CMakeLists.txt content:" && \
+    cat /opt/essentia/CMakeLists.txt || echo "❌ MISSING"
 
-# STEP 3: Build if valid
+# Build Essentia
 WORKDIR /opt/essentia
 RUN mkdir build
 WORKDIR /opt/essentia/build
